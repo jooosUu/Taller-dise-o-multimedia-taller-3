@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokédex Interactiva</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./src/css/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Card -->
+        <main class="pokedex-card">
+            <header class="card-header">
+                <h1 id="pokemon-name">Cargando...</h1>
+                <p id="pokemon-id">#000</p>
+            </header>
+            
+            <figure class="image-container">
+                <img id="pokemon-img" src="" alt="Pokemon Sprite">
+            </figure>
+            
+            <div class="types" id="pokemon-types">
+                <!-- Types injected via JS -->
+            </div>
+            
+            <nav class="navigation-buttons">
+                <button class="nav-btn prev">Anterior</button>
+                <button class="nav-btn next">Siguiente</button>
+            </nav>
+        </main>
+
+        <!-- Modal Overlay -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <!-- Modal Card -->
+            <div class="modal-card">
+                <button id="close-modal" class="close-btn" aria-label="Cerrar modal">&times;</button>
+                
+                <div class="modal-header">
+                    <h2 id="modal-name">Cargando...</h2>
+                    <span id="modal-id">#000</span>
+                </div>
+                
+                <div class="modal-content">
+                    <img id="modal-img" src="" alt="Pokemon Sprite Modal">
+                    
+                    <div class="modal-info">
+                        <div class="info-group">
+                            <strong>Altura:</strong>
+                            <span id="modal-height">0 m</span>
+                        </div>
+                        <div class="info-group">
+                            <strong>Peso:</strong>
+                            <span id="modal-weight">0 kg</span>
+                        </div>
+                        <div class="info-group abilities-group">
+                            <strong>Habilidades:</strong>
+                            <p id="modal-abilities">N/A</p>
+                        </div>
+                    </div>
+
+                    <div class="stats-container">
+                        <h3>Estadísticas Base</h3>
+                        <div id="modal-stats">
+                            <!-- Stats injected via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>
