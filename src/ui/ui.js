@@ -82,9 +82,9 @@ export const createTcgCardHtml = (pokemon, positionClass = 'center') => {
 
     return `
         <div class="tcg-card carousel-card ${positionClass}" 
-             data-id="${pokemon.id}" 
-             style="--current-type-color: var(--type-${primaryType});"
-             onclick="if(this.classList.contains('center')) window.showPokemonModal(${pokemon.id});">
+            data-id="${pokemon.id}" 
+            style="--current-type-color: var(--type-${primaryType});"
+            onclick="if(this.classList.contains('center')) window.showPokemonModal(${pokemon.id});">
             <div class="tcg-inner">
                 <div class="tcg-card-content">
                     <header class="tcg-header">

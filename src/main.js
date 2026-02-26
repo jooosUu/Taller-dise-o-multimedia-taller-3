@@ -218,4 +218,6 @@ const initApp = async () => {
     });
 };
 
+
+
 document.addEventListener('DOMContentLoaded', initApp);
