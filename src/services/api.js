@@ -44,3 +44,35 @@ export const fetchPokemon = async (id) => {
         throw error;
     }
 };
+
+// Retorna una lista de nombres de Pokémon según su tipo
+export const fetchPokemonByType = async (type) => {
+    try {
+        const response = await fetch(`https://pokeapi.co/api/v2/type/${type}`);
+
+        if (!response.ok) {
+            throw new Error(`Tipo no encontrado.`);
+        }
+
+        const data = await response.json();
+        // Devuelve un arreglo con los nombres de los pokemon de este tipo
+        return data.pokemon.map(p => p.pokemon.name);
+    } catch (error) {
+        console.error("Error en fetch tipo:", error);
+        throw error;
+    }
+};
+
+// Trae una lista grande de Pokémon para poder hacer búsqueda por coincidencias parciales
+export const fetchAllPokemonNames = async () => {
+    try {
+        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=1000');
+        if (!response.ok) throw new Error("No se pudo obtener la lista.");
+
+        const data = await response.json();
+        return data.results.map(p => p.name);
+    } catch (error) {
+        console.error("Error obteniendo todos los nombres:", error);
+        return [];
+    }
+};

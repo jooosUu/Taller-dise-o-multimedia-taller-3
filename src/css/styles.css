@@ -34,6 +34,9 @@
     /* Contraste en los tipos */
     --text-light: #ffffff;
     --text-dark: #121212;
+
+    /* Variable para color de fondo dinámico (color del tipo del Pokémon) */
+    --current-type-color: #ffcc24;
 }
 
 * {
@@ -45,111 +48,513 @@
 body {
     font-family: var(--font-main);
     background-color: var(--bg-color);
-    background-image: radial-gradient(circle at top right, #e2e8f0, #f8fafc);
+    background-image: radial-gradient(circle at top right, var(--current-type-color), #f8fafc);
     color: var(--text-main);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
+    transition: background-image 0.5s ease;
+    overflow: hidden;
+    /* Para evitar scroll con las particulas */
+}
+
+/* Capa Base de Partículas */
+.particles-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.particle {
+    position: absolute;
+    bottom: -50px;
+    border-radius: 50%;
+    opacity: 0;
+    animation: floatUp linear infinite;
+}
+
+/* Tipos específicos de Partículas */
+.particle-fire {
+    background: radial-gradient(circle, #fff, #ffeb3b, #ff9800, #f44336, transparent);
+    box-shadow: 0 0 10px #ff9800, 0 0 20px #ff5722, 0 0 30px #f44336;
+    border-radius: 50%;
+    filter: blur(2px) contrast(1.5);
+    mix-blend-mode: screen;
+}
+
+.particle-water {
+    background-color: rgba(64, 196, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.particle-grass {
+    background-color: #4caf50;
+    border-radius: 5px 0 5px 0;
+    /* Forma de hoja */
+    animation: floatLeaf linear infinite;
+}
+
+.particle-electric {
+    background-color: #ffeb3b;
+    box-shadow: 0 0 8px #fff, 0 0 15px #ffeb3b;
+    clip-path: polygon(50% 0%, 15% 40%, 60% 40%, 40% 100%, 80% 60%, 40% 60%);
+    border-radius: 0;
+}
+
+.particle-poison {
+    background: radial-gradient(circle, #9c27b0, transparent);
+    animation: floatBubble linear infinite;
+}
+
+.particle-default {
+    background-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Keyframes Visuales de Interfaz */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in {
+    animation: fadeInUp 0.5s ease backwards;
+}
+
+/* Keyframes de Movimiento */
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.8;
+    }
+
+    80% {
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: translateY(-100vh) scale(1.5);
+        opacity: 0;
+    }
+}
+
+@keyframes floatLeaf {
+    0% {
+        transform: translateY(0) rotate(0deg) translateX(0);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translateY(-50vh) rotate(180deg) translateX(30px);
+    }
+
+    80% {
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: translateY(-100vh) rotate(360deg) translateX(-30px);
+        opacity: 0;
+    }
+}
+
+@keyframes floatBubble {
+    0% {
+        transform: translateY(0) scale(0.5);
+        opacity: 0;
+    }
+
+    20% {
+        opacity: 0.6;
+        transform: translateY(-20vh) scale(1) translateX(10px);
+    }
+
+    40% {
+        transform: translateY(-40vh) scale(0.8) translateX(-10px);
+    }
+
+    60% {
+        transform: translateY(-60vh) scale(1.2) translateX(15px);
+    }
+
+    80% {
+        opacity: 0.3;
+        transform: translateY(-80vh) scale(0.9) translateX(-5px);
+    }
+
+    100% {
+        transform: translateY(-100vh) scale(1.5) translateX(0);
+        opacity: 0;
+    }
 }
 
 .app-container {
     width: 100%;
     max-width: 400px;
+    z-index: 10;
+    position: relative;
+    animation: fadeInUp 0.8s ease backwards;
 }
 
-/* Tarjeta principal */
-.pokedex-card {
-    background: var(--card-bg);
-    border-radius: 20px;
-    padding: 30px 25px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 4px 6px rgba(0, 0, 0, 0.04);
+/* Controles de Búsqueda y Filtros */
+.controls-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
-}
-
-/* Elevación de la tarjeta animada */
-.pokedex-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 30px rgba(0, 0, 0, 0.12), 0 8px 10px rgba(0, 0, 0, 0.08);
-}
-
-.card-header {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    gap: 12px;
     margin-bottom: 20px;
 }
 
-#pokemon-name {
-    font-size: 1.8rem;
-    font-weight: 700;
+.search-input,
+.type-filter {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    color: var(--text-main);
+    background-color: var(--card-bg);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.04);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus,
+.type-filter:focus {
+    border-color: var(--text-muted);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.type-filter {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="%2364748b" height="24" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>');
+    background-repeat: no-repeat;
+    background-position-x: 95%;
+    background-position-y: 50%;
+}
+
+/* === TCG Card Base está administrada arriba y al final, esta sección de pokedex-card queda obsoleta === */
+
+/* Tarjeta TCG Coleccionable */
+.tcg-card {
+    background-color: #fce762;
+    /* Borde clásico amarillo */
+    background-image: linear-gradient(135deg, #fae255 0%, #e2c130 100%);
+    width: 100%;
+    max-width: 360px;
+    height: 500px;
+    border-radius: 18px;
+    padding: 14px 12px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), inset 0 0 2px rgba(255, 255, 255, 0.8);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+}
+
+.tcg-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.4);
+}
+
+.tcg-inner {
+    background: linear-gradient(135deg, #e0e0e0, #bfbfbf);
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 4px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+}
+
+/* Tinte dinámico de tipo para el fondo interno */
+.tcg-inner::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--current-type-color);
+    opacity: 0.35;
+    mix-blend-mode: hard-light;
+    z-index: 0;
+}
+
+.tcg-card-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 8px;
+}
+
+/* Header de la Tarjeta */
+.tcg-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px 20px 20px 10px;
+    padding: 4px 8px;
+    margin-bottom: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.tcg-stage {
+    font-size: 0.65rem;
+    font-weight: 800;
+    background: linear-gradient(to bottom, #777, #333);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+    border: 1px solid #222;
+}
+
+.tcg-name {
+    font-size: 1.4rem;
+    font-weight: 800;
+    font-family: serif;
     text-transform: capitalize;
+    flex-grow: 1;
+    color: #1a1a1a;
+    letter-spacing: -0.5px;
 }
 
-#pokemon-id {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-muted);
+.tcg-hp-container {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+    color: #d61823;
+    font-weight: 900;
+    text-shadow: 1px 1px 0 #fff;
 }
 
-/* Fondo decorativo tras la imagen */
-.image-container {
-    width: 200px;
-    height: 200px;
-    background: radial-gradient(circle, #f1f5f9 40%, transparent 60%);
+.tcg-hp-label {
+    font-size: 0.65rem;
+}
+
+.tcg-hp-value {
+    font-size: 1.35rem;
+}
+
+.tcg-type-icon {
+    width: 24px;
+    height: 24px;
+    background: radial-gradient(circle, #fff, #ccc);
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    margin-left: 5px;
+}
+
+.tcg-type-icon svg {
+    width: 14px;
+    height: 14px;
+    color: #333;
+    filter: drop-shadow(1px 1px 0px rgba(255, 255, 255, 0.8));
+}
+
+/* Ilustración / Ventana central */
+.tcg-illustration-frame {
+    width: 100%;
+    height: 190px;
+    background: radial-gradient(circle, var(--current-type-color) 0%, rgba(20, 20, 30, 0.8) 100%);
+    border: 4px solid #bba14f;
+    /* Borde clásico dorado */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 0, 0, 0.9);
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 25px;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
 }
 
-#pokemon-img {
-    width: 100%;
-    height: auto;
-    max-height: 200px;
-    object-fit: contain;
-    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    filter: drop-shadow(0 10px 10px rgba(0, 0, 0, 0.15));
+.tcg-illustration-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.7);
+    pointer-events: none;
 }
 
-/* Animación del Sprite */
-.pokedex-card:hover #pokemon-img {
-    transform: scale(1.15) translateY(-10px);
+.tcg-illustration-frame img {
+    height: 160px;
+    filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.7));
+    transition: transform 0.4s ease;
+    z-index: 2;
 }
 
-/* Componente visual del tipo de pokemon */
-.types {
+.tcg-illustration-frame:hover img {
+    transform: scale(1.15) translateY(-5px);
+}
+
+/* Barra de información tipo flavor text */
+.tcg-flavor-bar {
+    background: linear-gradient(90deg, #d3c78d, #f5ebb8, #d3c78d);
+    font-size: 0.6rem;
+    font-style: italic;
+    font-weight: 700;
+    text-align: center;
+    padding: 3px 0;
+    margin: 4px 10px;
+    border: 1px solid #8e8550;
+    color: #222;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Habilidades emulando Ataques TCG */
+.tcg-attacks {
+    flex-grow: 1;
     display: flex;
-    gap: 10px;
-    margin-bottom: 30px;
-    flex-wrap: wrap;
+    flex-direction: column;
     justify-content: center;
+    gap: 12px;
+    padding: 10px 5px;
 }
 
-.type {
-    padding: 6px 16px;
-    border-radius: 20px;
-    font-size: 0.85rem;
-    font-weight: 600;
+.tcg-attack {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    padding-bottom: 8px;
+}
+
+.tcg-attack:last-child {
+    border-bottom: none;
+}
+
+.tcg-attack-cost {
+    display: flex;
+    gap: 2px;
+    width: 65px;
+}
+
+.tcg-energy {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, #fff, #ddd 70%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.tcg-energy svg {
+    width: 12px;
+    height: 12px;
+}
+
+.tcg-attack-name {
+    flex-grow: 1;
+    font-weight: 800;
+    font-size: 1.1rem;
+    text-transform: capitalize;
+    color: #111;
+}
+
+.tcg-attack-damage {
+    font-size: 1.3rem;
+    font-weight: 900;
+    color: #000;
+    text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5);
+}
+
+/* Footer con estadísticas */
+.tcg-footer {
+    border-top: 2px solid rgba(0, 0, 0, 0.3);
+    padding-top: 8px;
+    color: #111;
+}
+
+.tcg-stats-row {
+    display: flex;
+    justify-content: space-around;
+    text-align: center;
+    margin-bottom: 6px;
+}
+
+.tcg-stat-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.tcg-stat-label {
+    font-size: 0.6rem;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 800;
 }
 
-/* Textos de contraste */
-.text-dark {
-    color: var(--text-dark);
+.tcg-stat-value {
+    font-size: 0.9rem;
+    font-weight: 900;
 }
 
-.text-light {
-    color: var(--text-light);
+.tcg-bottom-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.55rem;
+    font-weight: 800;
+    font-family: monospace;
+    padding-top: 2px;
+}
+
+/* Brillo Holo TCG */
+.tcg-glare {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(105deg,
+            transparent 20%,
+            rgba(255, 255, 255, 0.4) 25%,
+            rgba(255, 255, 255, 0.5) 26%,
+            transparent 30%,
+            transparent 40%,
+            rgba(255, 255, 255, 0.2) 42%,
+            transparent 45%);
+    z-index: 10;
+    pointer-events: none;
+    transform: rotate(0deg);
+    transition: transform 0.6s ease;
+}
+
+.tcg-card:hover .tcg-glare {
+    transform: translateX(40%) translateY(40%);
 }
 
 /* Inyección de fondos y colores de texto */
@@ -273,7 +678,7 @@ body {
 
 .nav-btn:active {
     transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(152, 35, 220, 0.1);
 }
 
 .nav-btn:disabled {
@@ -309,17 +714,20 @@ body {
 
 /* Tarjeta dentro del modal */
 .modal-card {
-    background: var(--card-bg);
+    background: linear-gradient(145deg, rgba(30, 30, 35, 0.95), rgba(15, 15, 20, 0.95));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #e5e7eb;
     width: 100%;
     max-width: 450px;
     border-radius: 24px;
     padding: 30px;
     position: relative;
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 10px 40px var(--current-type-color), inset 0 0 20px rgba(0, 0, 0, 0.5);
     transform: scale(1);
     transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     max-height: 90vh;
     overflow-y: auto;
+    backdrop-filter: blur(15px);
 }
 
 .modal-card::-webkit-scrollbar {
@@ -335,13 +743,54 @@ body {
     transform: scale(0.9);
 }
 
+/* Modal Galería */
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 15px;
+    padding: 15px 0;
+    overflow-y: auto;
+}
+
+.gallery-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    padding: 10px;
+    cursor: pointer;
+    transition: transform 0.2s, background 0.2s;
+}
+
+.gallery-item:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.gallery-item img {
+    width: 70px;
+    height: 70px;
+    object-fit: contain;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+}
+
+.gallery-item span {
+    font-size: 0.8rem;
+    text-transform: capitalize;
+    margin-top: 8px;
+    font-weight: bold;
+    color: #fff;
+}
+
 /* Botón cerrar Modal */
 .close-btn {
     position: absolute;
     top: 20px;
     right: 20px;
-    background: var(--bg-color);
-    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     width: 36px;
     height: 36px;
     border-radius: 50%;
@@ -365,18 +814,20 @@ body {
     align-items: baseline;
     gap: 15px;
     margin-bottom: 20px;
-    border-bottom: 2px solid var(--bg-color);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
     padding-bottom: 15px;
 }
 
 #modal-name {
     font-size: 2rem;
     text-transform: capitalize;
+    color: #ffffff;
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
 }
 
 #modal-id {
     font-size: 1.2rem;
-    color: var(--text-muted);
+    color: rgba(255, 255, 255, 0.6);
     font-weight: 600;
 }
 
@@ -388,11 +839,14 @@ body {
 }
 
 #modal-img {
-    width: 180px;
-    height: 180px;
+    width: 200px;
+    height: 200px;
     object-fit: contain;
     margin-bottom: 20px;
-    filter: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.1));
+    filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.6));
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 60%);
+    padding: 10px;
 }
 
 /* Cajas de informacion */
@@ -401,23 +855,33 @@ body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
-    background: var(--bg-color);
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.05);
     padding: 20px;
     border-radius: 16px;
     margin-bottom: 25px;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .info-group {
     display: flex;
     flex-direction: column;
     gap: 5px;
+    color: #ddd;
 }
 
-.info-group strong {
+.icon-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.85rem;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: #9ca3af;
     letter-spacing: 0.5px;
+}
+
+.icon-label svg {
+    color: var(--current-type-color);
 }
 
 .abilities-group {
@@ -437,12 +901,14 @@ body {
 .stats-container h3 {
     font-size: 1.1rem;
     margin-bottom: 15px;
-    color: var(--text-main);
+    color: #ffffff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 5px;
 }
 
 .stat-row {
     display: grid;
-    grid-template-columns: 80px 30px 1fr;
+    grid-template-columns: 90px 30px 1fr;
     align-items: center;
     gap: 15px;
     margin-bottom: 12px;
@@ -452,18 +918,20 @@ body {
     font-size: 0.85rem;
     font-weight: 600;
     text-transform: uppercase;
-    color: var(--text-muted);
+    color: #9ca3af;
 }
 
 .stat-value {
     font-weight: 700;
     text-align: right;
+    color: #fff;
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
 }
 
 .stat-bar-bg {
     width: 100%;
     height: 8px;
-    background-color: var(--border-color);
+    background-color: rgba(255, 255, 255, 0.1);
     border-radius: 4px;
     overflow: hidden;
 }
@@ -502,4 +970,131 @@ body {
     .abilities-group {
         grid-column: span 1;
     }
+}
+
+/* === CARRUSEL 3D TCG === */
+.carousel-container {
+    width: 100%;
+    margin: 20px auto;
+    perspective: 1200px;
+    /* Profundidad 3D */
+    height: 550px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    overflow: visible;
+}
+
+.carousel-track {
+    position: relative;
+    width: 100%;
+    max-width: 360px;
+    /* Tamaño carta TCG central */
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-style: preserve-3d;
+}
+
+/* Base carta para el carrusel */
+.carousel-card {
+    position: absolute;
+    transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+    will-change: transform, opacity;
+}
+
+/* Tarjeta Izquierda */
+.carousel-card.left {
+    transform: translateX(-70%) translateZ(-300px) rotateY(30deg);
+    opacity: 0.5;
+    z-index: 1;
+    cursor: pointer;
+    filter: brightness(0.5);
+}
+
+/* Tarjeta Derecha */
+.carousel-card.right {
+    transform: translateX(70%) translateZ(-300px) rotateY(-30deg);
+    opacity: 0.5;
+    z-index: 1;
+    cursor: pointer;
+    filter: brightness(0.5);
+}
+
+/* Tarjeta Central */
+.carousel-card.center {
+    transform: translateX(0) translateZ(0) rotateY(0);
+    opacity: 1;
+    z-index: 5;
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6);
+    /* cursor pointer para invocar modal */
+    cursor: pointer;
+}
+
+/* Hover interactivo sobre cartas laterales */
+.carousel-card.left:hover {
+    transform: translateX(-65%) translateZ(-250px) rotateY(25deg);
+    opacity: 0.8;
+    filter: brightness(0.8);
+}
+
+.carousel-card.right:hover {
+    transform: translateX(65%) translateZ(-250px) rotateY(-25deg);
+    opacity: 0.8;
+    filter: brightness(0.8);
+}
+
+/* Hover de carta central: levita ligeramente la carta 3D */
+.carousel-card.center:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.7);
+}
+
+/* Animación brillo/glare sobre carta central en hover */
+.carousel-card.center:hover .tcg-glare {
+    transform: translateX(50%) translateY(50%);
+}
+
+@media (max-width: 768px) {
+
+    /* Menos separación en mobile */
+    .carousel-card.left {
+        transform: translateX(-55%) translateZ(-350px) rotateY(35deg);
+    }
+
+    .carousel-card.right {
+        transform: translateX(55%) translateZ(-350px) rotateY(-35deg);
+    }
+}
+
+/* Botón Flotante Galería */
+.view-all-floating-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e293b, #334155);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s;
+}
+
+.view-all-floating-btn:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, #334155, #475569);
+}
+
+.view-all-floating-btn:active {
+    transform: translateY(0) scale(0.95);
 }
